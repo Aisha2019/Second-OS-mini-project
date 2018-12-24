@@ -13,7 +13,7 @@ struct msgbuff
    char mtext[64];
 };
 
-
+void IntHandler(int signum);
 key_t DupQueue,DdownQueue,PupQueue,PdownQueue;
 int main()
 {
@@ -25,7 +25,7 @@ int main()
   // Process Queues 
   PupQueue = msgget(777, IPC_CREAT|0644); 
   PdownQueue = msgget(888, IPC_CREAT|0644); 
-
+  signal (SIGINT, IntHandler);
   int rec_val ,send_val,i=0;
   struct msgbuff message;
   const double TIMESTAMP = 0.00001;
@@ -101,3 +101,13 @@ int main()
   return 0;
 }
 
+void IntHandler(int signum)
+{
+  
+  msgctl(DupQueue, IPC_RMID, (struct msqid_ds *) 0);
+  msgctl(DdownQueue, IPC_RMID, (struct msqid_ds *) 0);
+  msgctl(PupQueue, IPC_RMID, (struct msqid_ds *) 0);
+  msgctl(PdownQueue, IPC_RMID, (struct msqid_ds *) 0);
+  printf("Server Shutdown\n");
+  exit(0);
+}
