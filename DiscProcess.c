@@ -41,8 +41,13 @@ int main()
   int rec_val,send_val;
   struct msgbuff message;
   message.mtype = pid;
+  
   while(1){
-
+    // Send PID to Kernel
+  send_val = msgsnd(upQueue, &message, sizeof(message.mtext), IPC_NOWAIT);
+  if(send_val == -1)
+    perror("Errror in send");
+  else printf("%d\n",pid);
     rec_val = msgrcv(downQueue, &message, sizeof(message.mtext), pid , !IPC_NOWAIT);  
     if(rec_val == -1)
       perror("Error in receive");
@@ -54,8 +59,10 @@ int main()
 // Handler of SIGUSR1 : Send # of Free Slots (Disc Status)
 void Handler1(int signum){
     int num = countFreeSlots();
+    int pid = getpid()%10000;
   //send number of free slots
     struct msgbuff message;
+    message.mtype = pid;
     sprintf(message.mtext, "%s%d", message.mtext, num);
     int send_val = msgsnd(upQueue, &message, sizeof(message.mtext), !IPC_NOWAIT);
     if(send_val == -1)
@@ -66,6 +73,7 @@ void Handler2(int signum){
 
   //increment Clock
   clk++;
+  printf("%d\n",clk);
 }
 // Add To Disc
 int Add(char* msg){

@@ -17,7 +17,6 @@ key_t upQueue,downQueue;
 int clk = 0;
 
 void Handler1(int signum);
-int decode_msg(char* str);
 int main()
 {
   int pid = getpid()%10000;
@@ -33,10 +32,12 @@ int main()
   int rec_val,send_val;
   struct msgbuff message;
   message.mtype = pid;
-  
   // Read Commands From File
+  printf("Enter File Name : \n");
+  char* filename[100];
+  scanf("%s",filename);
   FILE *file;
-  file = fopen("input.txt", "r"); // read mode
+  file = fopen(filename, "r"); // read mode
   // test for file not existing. 
   if (file == NULL) 
   {   
@@ -45,8 +46,15 @@ int main()
   }
    
   int i = 0,cycle;
+  
   while(1){
-    while ( fscanf(file, "%s", & str ) == 1 )  
+    // Send PID to Kernel
+    strcpy(message.mtext,filename);
+    send_val = msgsnd(upQueue, &message, sizeof(message.mtext), !IPC_NOWAIT);
+    if(send_val == -1)
+      perror("Errror in send");
+    else printf("%d\n",pid);
+   /* while ( fscanf(file, "%s", & str ) == 1 )  
     { 
       if(i == 0) // Clock Cycle
       {
@@ -84,7 +92,7 @@ int main()
       printf("%s\n","UNSuccessful ADD");
     else if(message.mtext[0]=='3')
       printf("%s\n","UNSuccessful DELETE");
-    }
+    }*/
   }
   return 0;
 }
@@ -93,11 +101,6 @@ void Handler1(int signum){
 
   //increment Clock
   clk++;
+  printf("%d\n",clk);
 }
-// Convert the recieved message from File to send it to Kernel
-int decode_msg(char* str)
-{
-  int clock_cycle = 0;
-  printf("%d\n",str[0]);
-  return clock_cycle;
-}
+
