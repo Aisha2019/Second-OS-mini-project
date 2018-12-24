@@ -13,17 +13,6 @@ struct msgbuff
    char mtext[256];
 };
 
-void conv(char* str,int size){
-
-  for(int i=0;i<size;++i)
-    if(islower(str[i]))
-      str[i] = toupper(str[i]);
-    else if(isupper(str[i]))
-      str[i] = tolower(str[i]);
-
-}
-  
-void intHandler(int signum);
 
 key_t upQueue,downQueue;
 int main()

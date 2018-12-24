@@ -29,7 +29,7 @@ int main()
   // Signal Handler
   signal (SIGUSR2, Handler1);
   
-  char str[64];
+  char str[64],str2[64];
   int rec_val,send_val;
   struct msgbuff message;
   message.mtype = pid;
@@ -44,27 +44,33 @@ int main()
     exit(-1); 
   }
    
-  int i = 0;
+  int i = 0,cycle;
   while(1){
     while ( fscanf(file, "%s", & str ) == 1 )  
     { 
       if(i == 0) // Clock Cycle
       {
-        
+        cycle = atoi(str);
         i++;
       }
       else if(i == 1) // Command
       {
+        str2[0] = str[0];
         i++;
       }
       else if(i == 2) // Data
       {
         i = 0;
+        str2[1] = ' ';
+        strcat(str2,str);
+        while(cycle != clk)
+        {
+        }
+        strcpy(message.mtext,str2);
+          send_val = msgsnd(upQueue, &message, sizeof(message.mtext), !IPC_NOWAIT);
+          if(send_val == -1)
+            perror("Errror in send");
       }
-      strcpy(message.mtext,str);
-      send_val = msgsnd(upQueue, &message, sizeof(message.mtext), !IPC_NOWAIT);
-      if(send_val == -1)
-        perror("Errror in send");
     
     // Get Response From Kernel
     rec_val = msgrcv(downQueue, &message, sizeof(message.mtext), pid , !IPC_NOWAIT);  

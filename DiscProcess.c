@@ -74,6 +74,8 @@ int Add(char* msg){
   if(id == -1) return -1;
   strcpy(list[id],msg);
   // delay 3 seconds
+  int current_Clk = clk;
+  while(clk != current_Clk+3){}
   return id;
 }
 // Delete From Disc
@@ -82,6 +84,8 @@ int Delete(int id){
   if(id >= 10 || list[id] == "") return -1;
   list[id] = "";
   // delay 1 second
+  int current_Clk = clk;
+  while(clk != current_Clk+1){}
   return id;
 }
 // Get the first Free Slot in Disc
