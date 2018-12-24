@@ -30,8 +30,8 @@ int main()
   int pid = getpid()%10000;
 
 	// Initialize UP & Down Queues
-  upQueue = msgget(777, IPC_CREAT|0644); 
-  downQueue = msgget(888, IPC_CREAT|0644); 
+  upQueue = msgget(555, IPC_CREAT|0644); 
+  downQueue = msgget(666, IPC_CREAT|0644); 
 
 	//Signals Handeler
   signal (SIGUSR1, Handler1);
@@ -71,22 +71,22 @@ void Handler2(int signum){
 int Add(char* msg){
 	// Search for free slot then insert msg
   int id = getFirstFree();
-  if(id == -1) return -1;
+  if(id == -1) return 2;
   strcpy(list[id],msg);
   // delay 3 seconds
   int current_Clk = clk;
   while(clk != current_Clk+3){}
-  return id;
+  return 0;
 }
 // Delete From Disc
 int Delete(int id){
   // Free slot with given id
-  if(id >= 10 || list[id] == "") return -1;
+  if(id >= 10 || list[id] == "") return 3;
   list[id] = "";
   // delay 1 second
   int current_Clk = clk;
   while(clk != current_Clk+1){}
-  return id;
+  return 1;
 }
 // Get the first Free Slot in Disc
 int getFirstFree(){
