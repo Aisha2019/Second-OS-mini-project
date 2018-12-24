@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <signal.h>
-char* list[10] = {"","","","","","","","","",""}; // Disc has 10 slots
+char list[10][65];// Disc has 10 slots
 // UP & Down Queues
 key_t upQueue,downQueue;
 // Clock 
@@ -30,28 +30,29 @@ int main()
   int pid = getpid()%10000;
 
 	// Initialize UP & Down Queues
-  upQueue = msgget(555, IPC_CREAT|0644); 
-  downQueue = msgget(666, IPC_CREAT|0644); 
+  upQueue = msgget(32321, IPC_CREAT|0644); 
+  downQueue = msgget(1231, IPC_CREAT|0644); 
 
 	//Signals Handeler
   signal (SIGUSR1, Handler1);
   signal (SIGUSR2, Handler2);
-
+ 
   char str[64];
   int rec_val,send_val;
   struct msgbuff message;
   message.mtype = pid;
   
-  while(1){
+  
     // Send PID to Kernel
-  send_val = msgsnd(upQueue, &message, sizeof(message.mtext), IPC_NOWAIT);
+  send_val = msgsnd(upQueue, &message, sizeof(message.mtext), !IPC_NOWAIT);
   if(send_val == -1)
     perror("Errror in send");
-  else printf("%d\n",pid);
-    rec_val = msgrcv(downQueue, &message, sizeof(message.mtext), pid , !IPC_NOWAIT);  
-    if(rec_val == -1)
-      perror("Error in receive");
-    else
+  while(1){
+		//Recieve orders from kernel
+    rec_val = msgrcv(downQueue, &message, sizeof(message.mtext), pid , IPC_NOWAIT);  
+    // if(rec_val == -1)
+    //   perror("Error in receive");
+    if(rec_val != -1 && rec_val != 0) //make sures it recieved values
       Excute_msg(message.mtext);
   }
   return 0;
@@ -90,7 +91,7 @@ int Add(char* msg){
 int Delete(int id){
   // Free slot with given id
   if(id >= 10 || list[id] == "") return 3;
-  list[id] = "";
+  list[id][0] = '\0';
   // delay 1 second
   int current_Clk = clk;
   while(clk != current_Clk+1){}
@@ -99,7 +100,7 @@ int Delete(int id){
 // Get the first Free Slot in Disc
 int getFirstFree(){
   for(int i=0;i<10;i++) 
-    if(list[i]=="")
+    if(list[i]=='\0')
       return i;
   return -1;
 }
@@ -108,7 +109,7 @@ int countFreeSlots(){
   int count = 0;
   for(int i=0;i<10;i++) 
     {
-      if(list[i]=="")
+      if(list[i]=='\0')
       count++;
     }
   return count;
@@ -140,3 +141,4 @@ void Excute_msg(char* message){
     perror("Inappropriate Message");
   }
 }
+

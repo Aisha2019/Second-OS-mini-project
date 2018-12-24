@@ -22,8 +22,8 @@ int main()
   int pid = getpid()%10000;
 
   // Message Queues
-  upQueue = msgget(777, IPC_CREAT|0644); 
-  downQueue = msgget(888, IPC_CREAT|0644); 
+  upQueue = msgget(1341, IPC_CREAT|0644); 
+  downQueue = msgget(1343, IPC_CREAT|0644); 
 
   // Signal Handler
   signal (SIGUSR2, Handler1);
